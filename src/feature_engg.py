@@ -3,6 +3,8 @@
 # import modules here
 import config
 
+import numpy as np
+
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 
@@ -42,7 +44,23 @@ class DataPreprocessing:
         output_sequences = tokenizer.texts_to_sequences(output_text)
 
         return input_sequences, output_sequences, tokenizer
-# tokenize the output sequences
+
+    def load_glove_vectors(self, pretrained_model):
+        '''
+        In this function we load the glove vectors
+        for the words that exist in the dataset.
+        :param pretrained_model:
+        :return: a dictionary with the word and pretrained vectors
+        '''
+        word_vector_dict = {}
+        with open(config.PRETRAINED_EMBEDDINGS) as word_vectors_handle:
+            for line in word_vectors_handle:
+                values = line.split()
+                word = values[0]
+                vector = np.asarray(values[1:], dtype=float)
+                word_vector_dict[word] = vector
+
+        return word_vector_dict
 
 # load the glove vectors
 
