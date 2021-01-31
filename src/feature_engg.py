@@ -9,6 +9,7 @@ import numpy as np
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 
+import pickle
 
 class MustHaveDP:
 
@@ -123,4 +124,23 @@ class DataPreprocessing(MustHaveDP):
         return embedding_matrix
 
 
+class DumpLoadFile:
 
+    def load_file(self, filename):
+        '''
+
+        :param filename:
+        :return:
+        '''
+        with open(filename, 'rb') as pickle_handle:
+            return pickle.load(pickle_handle)
+
+    def dump_file(self, filename, *file):
+        '''
+
+        :param filename:
+        :param file:
+        :return:
+        '''
+        with open(filename, 'wb') as pickle_handle:
+            pickle.dump(file)
