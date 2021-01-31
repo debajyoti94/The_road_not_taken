@@ -59,7 +59,8 @@ class DataPreprocessing(MustHaveDP):
 
         full_texts = input_text + output_text
         # we need full texts to capture the EOS and SOS tags and assign an index to them
-        tokenizer = Tokenizer(num_words=config.MAX_VOCAB_SIZE)
+        tokenizer = Tokenizer(num_words=config.MAX_VOCAB_SIZE, filters='')
+        # don't want the tokenizer to remove special characters
         tokenizer.fit_on_texts(full_texts)
         # we have assigned an index value for each word
         # now we need to assign these indices to the sequences
