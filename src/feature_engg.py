@@ -51,12 +51,12 @@ class DataPreprocessing(MustHaveDP):
             if not line:
                 continue
             # adding the sos and eos tags
-            input_line = '<SOS>' + line
-            output_line = line + '<EOS'
+            input_line = '<SOS> ' + line
+            output_line = line + ' <EOS>'
 
             input_text.append(input_line)
             output_text.append(output_line)
-
+        print(input_text[433], output_text[433])
         full_texts = input_text + output_text
         # we need full texts to capture the EOS and SOS tags and assign an index to them
         tokenizer = Tokenizer(num_words=config.MAX_VOCAB_SIZE, filters='')
@@ -66,7 +66,8 @@ class DataPreprocessing(MustHaveDP):
         # now we need to assign these indices to the sequences
         input_sequences = tokenizer.texts_to_sequences(input_text)
         output_sequences = tokenizer.texts_to_sequences(output_text)
-
+        print(input_sequences[1], input_sequences[2])
+        print(output_sequences[1], output_sequences[2])
         # now we need to create input and output sequences of fixed length
         max_sequence_len = max(len(s) for s in input_sequences)
         max_sequence_len = min(max_sequence_len,
@@ -79,6 +80,12 @@ class DataPreprocessing(MustHaveDP):
                                         padding='post')
         # post indicates we will be
         # padding at the end of the sentence
+        word2idx = tokenizer.word_index
+        idx2word = tokenizer.index_word
+        print('Found %s unique tokens.' % len(word2idx))
+        print(idx2word[1], idx2word[2])
+        assert ('<sos>' in word2idx)
+        assert ('<eos>' in word2idx)
 
         return input_sequences, output_sequences,\
                tokenizer, max_sequence_len
@@ -122,11 +129,11 @@ class DataPreprocessing(MustHaveDP):
         embedding_matrix = np.zeros(shape=(num_words, config.EMBEDDING_DIM))
 
         for word, index in word2idx.items():
-            try:
-                embedding_matrix[index] = word_vector_dict.get(word)
-            except KeyError:
-                continue
+            word_vector = word_vector_dict.get(word)
+            if word_vector is not None:
+                embedding_matrix[index] = word_vector
 
+        print(embedding_matrix[word2idx['<sos>']], embedding_matrix[word2idx['<eos>']])
         return embedding_matrix, num_words
 
 
