@@ -80,4 +80,18 @@ if __name__ == '__main__':
 
     elif args.generate == 'text':
 
-        pass
+        sampling_model = load_model(config.SAMPLING_MODEL)
+        tokenizer = dl_obj.load_file(config.TOKENIZER)
+
+
+        lm = model.LanguageModel()
+        while True:
+            for _ in range(5):
+                print(lm.sample_text_gen(sampling_model, tokenizer[0].word_index,
+                           tokenizer[0].index_word))
+
+            ans = input("---generate another? [Y/n]---")
+            if ans and ans[0].lower().startswith('n'):
+                break
+
+
