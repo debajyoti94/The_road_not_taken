@@ -1,4 +1,4 @@
-''' Unit test cases for this project'''
+""" Unit test cases for this project"""
 
 # import modules here
 import config
@@ -20,4 +20,3 @@ class TestFunctionalities:
 
 
 # test if the word embeddings exists
-
