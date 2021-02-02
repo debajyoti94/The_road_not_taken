@@ -12,10 +12,17 @@ MAX_VOCAB_SIZE = 5000
 
 
 # for model training
-BATCH_SIZE = 128
-LR = 0.01
-LOSS = 'categorical_crossentropy'
-EMBEDDING_DIM = 300
+TOKENIZER = '../models/tokenzier.pickle'
+ACTUAL_SEQ_LENGTH = '../models/actual_sequence_len.pickle'
+EMBEDDING_MATRIX = '../models/embedding_matrix.pickle'
+ACTUAL_VOCAB_SIZE = '../models/actual_vocab_size.pickle'
+WORD_VECTOR_DICT = '../models/word_vector_dict.pickle'
 
+BATCH_SIZE = 128
+NUM_EPOCHS = 10
+LR = 0.01
+LOSS_FN = 'categorical_crossentropy'
+EMBEDDING_DIM = 300
+VALIDATION_SPLIT = 0.2
 
 
