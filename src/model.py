@@ -22,6 +22,10 @@ class LanguageModel:
         :param actual_vocab_size:
         :return:
         '''
+        print(len(input_sequences), len(output_sequences))
+        print(embedding_matrix.shape, max_sequence_len, actual_vocab_size)
+        print(input_sequences[0], output_sequences[0])
+        print(input_sequences[1], output_sequences[1])
 
         one_hot_targets = np.zeros((len(input_sequences), max_sequence_len, actual_vocab_size))
         for i, target_sequence in enumerate(output_sequences):
@@ -30,19 +34,19 @@ class LanguageModel:
                     one_hot_targets[i, t, word] = 1
 
         # create an embedding layer
-        embedding_layer = Embedding(embedding_matrix.shape[0],
-                                    embedding_matrix.shape[1],
-                                    weights=embedding_matrix)
+        embedding_layer = Embedding(actual_vocab_size,
+                                    config.EMBEDDING_DIM,
+                                    weights=[embedding_matrix])
 
         # encoder
         input_layer = Input(shape=(max_sequence_len,))
         # we want to have control over the initial hidden states
         # as this is what will be based to the decoder
-        initial_h = Input(shape=(config.EMBEDDING_DIM))
-        initial_c = Input(shape=(config.EMBEDDING_DIM))
+        initial_h = Input(shape=(config.HIDDEN_DIM,))
+        initial_c = Input(shape=(config.HIDDEN_DIM,))
         x = embedding_layer(input_layer)
-        lstm_layer = LSTM(config.EMBEDDING_DIM, return_sequences=True, return_state=True)
-        x, _, _ = lstm_layer(initial_state=[initial_h, initial_c]) (x)
+        lstm_layer = LSTM(config.HIDDEN_DIM, return_sequences=True, return_state=True, activation='tanh')
+        x, _, _ = lstm_layer(x, initial_state=[initial_h, initial_c])
         dense_layer = Dense(actual_vocab_size, activation='softmax')
         output_layer = dense_layer(x)
         # to get probability distribution of the words
@@ -54,18 +58,18 @@ class LanguageModel:
                               output_layer)
 
         encoder_model.compile(loss=config.LOSS_FN,
-                              optimizer=Adam(lr=0.01),
+                              optimizer=Adam(lr=0.001),
                               metrics=['accuracy'])
 
-        z = np.zeros((len(input_sequences), config.EMBEDDING_DIM))
+        z = np.zeros((len(input_sequences), config.HIDDEN_DIM))
         r = encoder_model.fit(
             [input_sequences, z, z],
             one_hot_targets,
             batch_size=config.BATCH_SIZE,
-            epochs=config.EPOCHS,
+            epochs=config.NUM_EPOCHS,
             validation_split=config.VALIDATION_SPLIT
         )
-
+        print(r.history.keys())
         # plot some data
         plt.plot(r.history['loss'], label='loss')
         plt.plot(r.history['val_loss'], label='val_loss')
@@ -75,8 +79,8 @@ class LanguageModel:
         plt.show()
 
         # accuracies
-        plt.plot(r.history['accuracy'], label='acc')
-        plt.plot(r.history['val_accuracy'], label='val_acc')
+        plt.plot(r.history['acc'], label='acc')
+        plt.plot(r.history['val_acc'], label='val_acc')
         plt.legend()
         plt.grid()
         plt.savefig('../plots/accuracy_values.png')
