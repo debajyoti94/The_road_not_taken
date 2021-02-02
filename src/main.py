@@ -60,7 +60,23 @@ if __name__ == '__main__':
 
     elif args.train == 'seq2seq':
 
-        pass
+        # we will load all the necessary files required for training the model
+        input_sequences = dl_obj.load_file(config.INPUT_SEQ_TRAIN)
+        output_sequences = dl_obj.load_file(config.OUTPUT_SEQ_TRAIN)
+        embedding_matrix = dl_obj.load_file(config.EMBEDDING_MATRIX)
+        actual_sequence_len = dl_obj.load_file(config.ACTUAL_SEQ_LENGTH)
+        actual_vocab_size = dl_obj.load_file(config.ACTUAL_VOCAB_SIZE)
+
+        lm = model.LanguageModel()
+        print(actual_vocab_size, actual_sequence_len)
+        encoder_model, sampling_model = lm.train_model(input_sequences[0],
+                                                       output_sequences[0],
+                                                       embedding_matrix[0],
+                                                       actual_sequence_len[0],
+                                                       actual_vocab_size[0])
+
+        save_model(encoder_model, config.ENCODER_MODEL)
+        save_model(sampling_model, config.SAMPLING_MODEL)
 
     elif args.generate == 'text':
 
