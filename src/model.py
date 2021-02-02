@@ -13,6 +13,15 @@ class LanguageModel:
 
     def train_model(self, input_sequences, output_sequences,
                     embedding_matrix, max_sequence_len, actual_vocab_size):
+        '''
+
+        :param input_sequences:
+        :param output_sequences:
+        :param embedding_matrix:
+        :param max_sequence_len:
+        :param actual_vocab_size:
+        :return:
+        '''
 
         one_hot_targets = np.zeros((len(input_sequences), max_sequence_len, actual_vocab_size))
         for i, target_sequence in enumerate(output_sequences):
@@ -27,6 +36,8 @@ class LanguageModel:
 
         # encoder
         input_layer = Input(shape=(max_sequence_len,))
+        # we want to have control over the initial hidden states
+        # as this is what will be based to the decoder
         initial_h = Input(shape=(config.EMBEDDING_DIM))
         initial_c = Input(shape=(config.EMBEDDING_DIM))
         x = embedding_layer(input_layer)
@@ -39,10 +50,12 @@ class LanguageModel:
         # in such a way that it can predict the next word
         # this is why the output target is a one hot encoded and output layer is a dense layer
 
-        encoder_model = Model([input_layer, initial_h, initial_c], output_layer)
+        encoder_model = Model([input_layer, initial_h, initial_c],
+                              output_layer)
 
-        encoder_model.compile(loss=config.LOSS_FN, optimizer=Adam(lr=0.01),
-                      metrics=['accuracy'])
+        encoder_model.compile(loss=config.LOSS_FN,
+                              optimizer=Adam(lr=0.01),
+                              metrics=['accuracy'])
 
         z = np.zeros((len(input_sequences), config.EMBEDDING_DIM))
         r = encoder_model.fit(
@@ -57,12 +70,16 @@ class LanguageModel:
         plt.plot(r.history['loss'], label='loss')
         plt.plot(r.history['val_loss'], label='val_loss')
         plt.legend()
+        plt.grid()
+        plt.savefig('../plots/loss_values.png')
         plt.show()
 
         # accuracies
         plt.plot(r.history['accuracy'], label='acc')
         plt.plot(r.history['val_accuracy'], label='val_acc')
         plt.legend()
+        plt.grid()
+        plt.savefig('../plots/accuracy_values.png')
         plt.show()
 
         # create decoder
@@ -81,8 +98,26 @@ class LanguageModel:
         return  encoder_model, sampling_model
 
 
-    def inference_stage(self):
-        return
+    def sample_text_gen(self, sampling_model, word2idx, idx2word):
+        '''
 
-    def plot_values(self, model):
+        :param sampling_model:
+        :param idx2word:
+        :return:
+        '''
+        # provide <sos> as first input
+        np_sos_input = np.asarray([[word2idx['<SOS>']]])
+        h = np.zeros((1, config.EMBEDDING_DIM))
+        c = np.zeros((1, config.EMBEDDING_DIM))
+
+        eos_id = word2idx['<EOS>']
+
+        # for storing output
+        output_sentence = []
+
+        for _ in range(config.MAX_SEQUENCE_LENGTH):
+            o, h, c = sampling_model.predict([np_sos_input, h, c])
+            #TODO: continue with the prediction code. Lets train the model first
+
+
         return
