@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from keras.models import Model
 from keras.layers import LSTM, Input, Embedding, Dense
 from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
 
 class LanguageModel:
 
@@ -57,8 +58,10 @@ class LanguageModel:
         encoder_model = Model([input_layer, initial_h, initial_c],
                               output_layer)
 
+        early_stop = EarlyStopping(monitor="val_loss", mode="min", patience=25)
+
         encoder_model.compile(loss=config.LOSS_FN,
-                              optimizer=Adam(lr=0.001),
+                              optimizer=Adam(lr=config.LR),
                               metrics=['accuracy'])
 
         z = np.zeros((len(input_sequences), config.HIDDEN_DIM))
@@ -67,7 +70,8 @@ class LanguageModel:
             one_hot_targets,
             batch_size=config.BATCH_SIZE,
             epochs=config.NUM_EPOCHS,
-            validation_split=config.VALIDATION_SPLIT
+            validation_split=config.VALIDATION_SPLIT,
+            callbacks=[early_stop]
         )
         print(r.history.keys())
         # plot some data
@@ -110,18 +114,32 @@ class LanguageModel:
         :return:
         '''
         # provide <sos> as first input
-        np_sos_input = np.asarray([[word2idx['<SOS>']]])
-        h = np.zeros((1, config.EMBEDDING_DIM))
-        c = np.zeros((1, config.EMBEDDING_DIM))
+        np_sos_input = np.asarray([[word2idx['<sos>']]])
+        h = np.zeros((1, config.HIDDEN_DIM))
+        c = np.zeros((1, config.HIDDEN_DIM))
 
-        eos_id = word2idx['<EOS>']
+        eos_id = word2idx['<eos>']
 
         # for storing output
         output_sentence = []
 
         for _ in range(config.MAX_SEQUENCE_LENGTH):
             o, h, c = sampling_model.predict([np_sos_input, h, c])
-            #TODO: continue with the prediction code. Lets train the model first
+            prob_dist = o[0,0]
+            # print(o.shape)
+            # print(prob_dist)
+            if np.argmax(prob_dist) == 0:
+                print("Something is wrong!")
+            prob_dist[0] = 0
+            prob_dist /= prob_dist.sum()
+            idx = np.random.choice(len(prob_dist), p=prob_dist)
+            if idx == eos_id:
+                break
 
+            # accuulate output
+            output_sentence.append(idx2word.get(idx))
 
-        return
+            # make the next input into model
+            np_sos_input[0, 0] = idx
+
+        return ' '.join(output_sentence)
