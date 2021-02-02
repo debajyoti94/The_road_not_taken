@@ -18,8 +18,12 @@ EMBEDDING_MATRIX = '../models/embedding_matrix.pickle'
 ACTUAL_VOCAB_SIZE = '../models/actual_vocab_size.pickle'
 WORD_VECTOR_DICT = '../models/word_vector_dict.pickle'
 
+ENCODER_MODEL = '../models/encoder_model.h5'
+SAMPLING_MODEL = '../models/sampling_model.h5'
+
 BATCH_SIZE = 128
-NUM_EPOCHS = 10
+NUM_EPOCHS = 100
+HIDDEN_DIM = 25
 LR = 0.01
 LOSS_FN = 'categorical_crossentropy'
 EMBEDDING_DIM = 300
