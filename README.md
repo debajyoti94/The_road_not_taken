@@ -28,4 +28,4 @@ The repository has multiple directories, with each serving a different purpose:
 
 
 ### To install the required packages, use:
-    ```pip install -r requirements.txt```
+   ```pip install -r requirements.txt```
