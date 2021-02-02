@@ -26,3 +26,6 @@ The repository has multiple directories, with each serving a different purpose:
 ## For generating text 5 lines at a time, use:
   ```python main.py --generate text```
 
+
+### To install the required packages, use:
+    ```pip install -r requirements.txt```
