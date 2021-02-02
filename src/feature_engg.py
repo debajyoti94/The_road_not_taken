@@ -80,22 +80,27 @@ class DataPreprocessing(MustHaveDP):
         # post indicates we will be
         # padding at the end of the sentence
 
-        return input_sequences, output_sequences, tokenizer
+        return input_sequences, output_sequences,\
+               tokenizer, max_sequence_len
 
-    def load_glove_vectors(self, pretrained_model):
+    def load_glove_vectors(self):
         '''
         In this function we load the glove vectors
         for the words that exist in the dataset.
-        :param pretrained_model:
         :return: a dictionary with the word and pretrained vectors
         '''
         word_vector_dict = {}
         with open(config.PRETRAINED_EMBEDDINGS) as word_vectors_handle:
             for line in word_vectors_handle:
-                values = line.split()
-                word = values[0]
-                vector = np.asarray(values[1:], dtype=float)
-                word_vector_dict[word] = vector
+                try:
+                    values = line.split()
+                    word = values[0]
+                    vector = np.asarray(values[1:], dtype='float32')
+                    word_vector_dict[word] = vector
+
+                except ValueError:
+                    print("Skipping word {} due to ValueError.".format(word))
+                    continue
 
         return word_vector_dict
 
@@ -122,7 +127,7 @@ class DataPreprocessing(MustHaveDP):
             except KeyError:
                 continue
 
-        return embedding_matrix
+        return embedding_matrix, num_words
 
 
 class DumpLoadFile:
@@ -144,4 +149,4 @@ class DumpLoadFile:
         :return:
         '''
         with open(filename, 'wb') as pickle_handle:
-            pickle.dump(file)
+            pickle.dump(file, pickle_handle)
