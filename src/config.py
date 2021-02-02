@@ -23,7 +23,7 @@ SAMPLING_MODEL = '../models/sampling_model.h5'
 
 BATCH_SIZE = 128
 NUM_EPOCHS = 100
-HIDDEN_DIM = 25
+HIDDEN_DIM = 100
 LR = 0.01
 LOSS_FN = 'categorical_crossentropy'
 EMBEDDING_DIM = 300
